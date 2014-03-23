@@ -9,10 +9,15 @@ Files
 Settings.txt
 =============
 [Settings]
+
 HOST = irc.twitch.tv
+
 PORT = 6667
+
 AUTH = oauth:###################### (get it from http://twitchapps.com/tmi/)
+
 USERNAME = username
+
 CHAT_CHANNEL = channelname
 
 Modules Required
