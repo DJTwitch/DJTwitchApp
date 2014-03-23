@@ -1,6 +1,6 @@
 [Settings]
-HOST = chat.freenode.net
+HOST = irc.twitch.tv
 PORT = 6667
-AUTH = oauth:16qmbmm7u2wymrog4nh6q9rir6m1xvv
-USERNAME = DJTwitch2
-CHAT_CHANNEL = djtwitch
+AUTH = oauth:#####################
+USERNAME = username
+CHAT_CHANNEL = channelname
