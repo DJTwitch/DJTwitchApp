@@ -11,6 +11,9 @@ import threading
 import time
 from PyQt4 import QtGui, QtCore
 
+
+global whovoted
+whovoted=[]
 global lcdsn
 global currentsongname
 currentsongname=""
@@ -177,13 +180,18 @@ def djtwitchPlay():
         if top10song[0][2] >=1:
             if playing ==0:
                 print "Loading next song in queue..."
-                print str(top10song[0][0])
+                global s
+                for i in range(0,9):
+                    tempsongname = str(top10song[i][0])
+                    s.send(bytes("PRIVMSG #%s :(%d) %s\r\n" % (CHAT_CHANNEL, top10song[i][2], tempsongname)))
                 threadurl = top10song[0][1]
                 global currentsongname
                 currentsongname = top10song[0][0]
                 if thread2.is_alive():
                     nameupdate()
                 play(threadurl)
+                global whovoted
+                del whovoted[:]
                 top10song[0] = ["","",0]
                 sortvoting()
             else:
@@ -199,8 +207,10 @@ if os.path.isfile("settings.txt"):
     PORT = config.getint('Settings', 'PORT')
     AUTH = config.get('Settings', 'AUTH')
     NICK = config.get('Settings', 'USERNAME').lower()
+    global CHAT_CHANNEL
     CHAT_CHANNEL = config.get('Settings', 'CHAT_CHANNEL').lower()
 
+global s
 s=socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 s.connect((HOST, PORT))
 
@@ -265,14 +275,22 @@ while 1:
                 print "PONG!\n"
                 s.send(bytes("PRIVMSG #%s :PONG\r\n" % CHAT_CHANNEL))
             if command == '!dj':
-                print "Vote\n"
-                out = out[4:]
-                if out:
-                    votedsong = find(out)
-                    if votedsong:
-                        vote(votedsong)
-                        output = str(votedsong.name) + " - " + str(votedsong.artist)
-                        print "Voted", output
+                global whovoted
+                alreadyvoted = 0
+                for names in whovoted:
+                    if user == names:
+                        alreadyvoted = 1
+                        print user, "already voted"
+                if alreadyvoted == 0:
+                    whovoted.extend([user])
+                    print "Vote\n"
+                    out = out[4:]
+                    if out:
+                        votedsong = find(out)
+                        if votedsong:
+                            vote(votedsong)
+                            output = str(votedsong.name) + " - " + str(votedsong.artist)
+                            print "Voted", output
 
 
     

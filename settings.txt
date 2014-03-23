@@ -2,5 +2,5 @@
 HOST = chat.freenode.net
 PORT = 6667
 AUTH = oauth:16qmbmm7u2wymrog4nh6q9rir6m1xvv
-USERNAME = sfgdfhfghxfghfgh
+USERNAME = DJTwitch2
 CHAT_CHANNEL = djtwitch
