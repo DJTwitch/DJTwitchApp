@@ -3,14 +3,14 @@ DJTwitch
 http://DJTwitch.github.io
 
 Files
-* DJTwitch.py - the main app python file 
+* DJTwitch.py - the main app python file
 * settings.txt - the config for the app
 
 Settings.txt
 =============
 [Settings]
 
-HOST = irc.twitch.tv
+HOST = irc.twitch.tv (you can put other irc servers as well)
 
 PORT = 6667
 
@@ -18,9 +18,9 @@ AUTH = oauth:###################### (get it from http://twitchapps.com/tmi/)
 
 USERNAME = username
 
-CHAT_CHANNEL = channelname
+CHAT_CHANNEL = channelname (This most likely will be your username. Unless you are using other irc servers)
 
-Modules Required
+Modules Required (Only required when running .py)
 ================
 * vlc - https://wiki.videolan.org/Python_bindings/
 * grooveshark - http://koehlma.github.io/projects/pygrooveshark.html
