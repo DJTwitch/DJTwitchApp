@@ -1,0 +1,6 @@
+[Settings]
+HOST = irc.twitch.tv
+PORT = 6667
+AUTH = oauth:#####################
+USERNAME = username
+CHAT_CHANNEL = username
