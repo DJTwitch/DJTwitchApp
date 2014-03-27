@@ -16,7 +16,7 @@ global whovoted
 whovoted=[]
 global lcdsn
 global currentsongname
-currentsongname=""
+currentsongname="None Playing. Please vote with !DJ"
 global top10song
 top10song = []
 global playing
@@ -36,7 +36,7 @@ class Example(QtGui.QMainWindow):
         sld.setMaximum(100)
         sld.setValue(100)
         sld.setFocusPolicy(QtCore.Qt.NoFocus)
-        sld.setGeometry(140, 110, 100, 30)
+        sld.setGeometry(140, 110, 300, 30)
         sld.valueChanged[int].connect(data)
 
         lcd = QtGui.QLCDNumber(self)
@@ -45,7 +45,7 @@ class Example(QtGui.QMainWindow):
 
         global lcdsn
         lcdsn = QtGui.QLabel(currentsongname, self)
-        lcdsn.move(150, 0)
+        lcdsn.setGeometry(140, 0, 300, 50)
         
         global playb
         playb = QtGui.QPushButton('Play', self)
@@ -71,7 +71,7 @@ class Example(QtGui.QMainWindow):
         group.addButton(pauseb)
         group.addButton(skipb)
         
-        self.setGeometry(300, 300, 290, 150)
+        self.setGeometry(300, 500, 500, 150)
         self.setWindowTitle('DJ Twitch')
         self.show()
     
@@ -115,7 +115,6 @@ def find(songname):
     print "start search"
     for song in client.search(songname, Client.SONGS):
         songs.append(song)
-    print "song found"
     if songs:
         return songs[0]
 
@@ -144,6 +143,9 @@ def SongFinished(self, data):
     print "SONG IS OVER"
     global playing
     playing = 0
+    global currentsongname
+    currentsongname = "Playing None"
+    nameupdate()
     meme.event_detach(vlc.EventType.MediaPlayerEndReached)
     meme.event_detach(vlc.EventType.MediaPlayerStopped)
 
@@ -159,7 +161,7 @@ def vote(votedsong):
         if voted:
             break
     if voted == 0:
-        top10song[9][0] = votedsong.name
+        top10song[9][0] = votedsong.name.encode('ascii','ignore')
         top10song[9][1] = votedsong.stream.url
         top10song[9][2] = 1
     sortvoting()
@@ -171,7 +173,8 @@ def sortvoting():
             holder = top10song[9-i]
             top10song[9-i] = top10song[9-i-1]
             top10song[9-i-1] = holder
-    print top10song
+    for i in range(0,10):
+        print str(i+1) + ". " + "(" + str(top10song[i][2]) + ") " + top10song[i][0] 
 
 def djtwitchPlay():
     while True:
@@ -181,9 +184,7 @@ def djtwitchPlay():
             if playing ==0:
                 print "Loading next song in queue..."
                 global s
-                for i in range(0,9):
-                    tempsongname = str(top10song[i][0])
-                    s.send(bytes("PRIVMSG #%s :(%d) %s\r\n" % (CHAT_CHANNEL, top10song[i][2], tempsongname)))
+                s.send(bytes("PRIVMSG #%s : Now Playing... %s (%d)\r\n" % (CHAT_CHANNEL, str(top10song[0][0]), top10song[0][2])))
                 threadurl = top10song[0][1]
                 global currentsongname
                 currentsongname = top10song[0][0]
@@ -194,8 +195,6 @@ def djtwitchPlay():
                 del whovoted[:]
                 top10song[0] = ["","",0]
                 sortvoting()
-            else:
-                print "Song is playing"
                 
 for i in range(0,10):
     top10song.append(["","",0])
@@ -275,22 +274,24 @@ while 1:
                 print "PONG!\n"
                 s.send(bytes("PRIVMSG #%s :PONG\r\n" % CHAT_CHANNEL))
             if command == '!dj':
-                global whovoted
                 alreadyvoted = 0
                 for names in whovoted:
                     if user == names:
                         alreadyvoted = 1
                         print user, "already voted"
                 if alreadyvoted == 0:
-                    whovoted.extend([user])
-                    print "Vote\n"
+                    print "hasn't voted yet"
                     out = out[4:]
                     if out:
                         votedsong = find(out)
                         if votedsong:
+                            print "song found"
+                            whovoted.extend([user])
                             vote(votedsong)
-                            output = str(votedsong.name) + " - " + str(votedsong.artist)
+                            output = votedsong.name.encode('ascii', 'ignore')
                             print "Voted", output
+                        else:
+                            print "song not found :("
 
 
     
