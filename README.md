@@ -1,6 +1,6 @@
 DJTwitch
 ==================
-http://DJTwitch.github.io
+http://djtwitch.org/main.html
 
 Files
 * DJTwitch.py - the main app python file
