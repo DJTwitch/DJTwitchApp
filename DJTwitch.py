@@ -35,12 +35,18 @@ class Example(QtGui.QMainWindow):
         sld.setMaximum(100)
         sld.setValue(100)
         sld.setFocusPolicy(QtCore.Qt.NoFocus)
-        sld.setGeometry(140, 110, 300, 30)
+        sld.setGeometry(190, 110, 300, 30)
         sld.valueChanged[int].connect(volume)
 
         lcd = QtGui.QLCDNumber(self)
         lcd.setGeometry(140, 50, 100, 50)
         sld.valueChanged.connect(lcd.display)
+
+        volumePic = QtGui.QLabel(self)
+        volumePic.setGeometry(125, 100, 50, 50)
+        volumePixmap = QtGui.QPixmap("volume.png")
+        volumePixmap = volumePixmap.scaled(volumePic.size())
+        volumePic.setPixmap(QtGui.QPixmap("volume.png"))
 
         global lcdsn
         lcdsn = QtGui.QLabel(currentsongname, self)
@@ -76,7 +82,15 @@ class Example(QtGui.QMainWindow):
             except:
                 pass
             self.close()
-            exit()
+            
+    def closeEvent(self, event): # when GUI is closed, program is closed
+        global player
+        try:
+            player.release()
+        except:
+            pass
+        os._exit(0)
+            
     
 def nameupdate():
     global lcdsn
