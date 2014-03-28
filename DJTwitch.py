@@ -86,7 +86,7 @@ def nameupdate():
     
 def volume(slide_var):
     global player
-    player.audio_set_volume(slide)
+    player.audio_set_volume(slide_var)
     
 def playbt(playbt_var):
     global playb
