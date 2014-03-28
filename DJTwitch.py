@@ -14,7 +14,6 @@ from PyQt4 import QtGui, QtCore
 
 global whovoted
 whovoted=[]
-global lcdsn
 global currentsongname
 currentsongname="None Playing. Please vote with !DJ"
 global top10song
@@ -37,7 +36,7 @@ class Example(QtGui.QMainWindow):
         sld.setValue(100)
         sld.setFocusPolicy(QtCore.Qt.NoFocus)
         sld.setGeometry(140, 110, 300, 30)
-        sld.valueChanged[int].connect(data)
+        sld.valueChanged[int].connect(volume)
 
         lcd = QtGui.QLCDNumber(self)
         lcd.setGeometry(140, 50, 100, 50)
@@ -51,29 +50,33 @@ class Example(QtGui.QMainWindow):
         playb = QtGui.QPushButton('Play', self)
         playb.setCheckable(True)
         playb.move(10, 10)
-        playb.clicked.connect(playyy)
+        playb.clicked.connect(playbt)
         
         global pauseb
         pauseb = QtGui.QPushButton('Pause', self)
         pauseb.setCheckable(True)
         pauseb.move(10, 60)
-        pauseb.clicked.connect(pause)
+        pauseb.clicked.connect(pausebt)
 
         global skipb
         skipb = QtGui.QPushButton('Skip', self)
         skipb.setCheckable(True)
         skipb.move(10, 110)
-        skipb.clicked.connect(skip)
-
-        group = QtGui.QButtonGroup()
-        group.setExclusive(True)
-        group.addButton(playb)
-        group.addButton(pauseb)
-        group.addButton(skipb)
+        skipb.clicked.connect(skipbt)
         
         self.setGeometry(300, 500, 500, 150)
         self.setWindowTitle('DJ Twitch')
         self.show()
+
+    def keyPressEvent(self, e):
+        if e.key() == QtCore.Qt.Key_Escape:#kills everything when escape is hit
+            global player
+            try:
+                player.release()
+            except:
+                pass
+            self.close()
+            exit()
     
 def nameupdate():
     global lcdsn
@@ -81,27 +84,27 @@ def nameupdate():
     lcdsn.repaint()
     lcdsn.setText(QtCore.QString(currentsongname))
     
-def data(slide):
+def volume(slide_var):
     global player
-    vlc.libvlc_audio_set_volume(player, slide+1)
+    player.audio_set_volume(slide)
     
-def playyy(gogo):
+def playbt(playbt_var):
     global playb
     global player
     playb.toggle()
-    vlc.libvlc_media_player_play(player)
+    player.play()
     
-def pause(slow):
+def pausebt(pausebt_var):
     global pauseb
     global player
     pauseb.toggle()
-    vlc.libvlc_media_player_pause(player)
+    player.pause()
     
-def skip(stopy):
+def skipbt(skipbt_var):
     global skipb
     global player
     skipb.toggle()
-    vlc.libvlc_media_player_stop(player)
+    player.stop()
 
 def gui():    
     app = QtGui.QApplication(sys.argv)
@@ -119,8 +122,6 @@ def find(songname):
         return songs[0]
 
 def play(SongUrl):
-    global loopy
-    loopy=1
     global playing
     playing = 1
     instance=vlc.Instance()
@@ -130,10 +131,10 @@ def play(SongUrl):
     player.set_media(media)
     player.play()
     print "play"
-    global meme
-    meme=player.event_manager()
-    meme.event_attach(vlc.EventType.MediaPlayerEndReached, SongFinished, 1)
-    meme.event_attach(vlc.EventType.MediaPlayerStopped, SongFinished, 1)
+    global player_events
+    player_events=player.event_manager()
+    player_events.event_attach(vlc.EventType.MediaPlayerEndReached, SongFinished, 1)
+    player_events.event_attach(vlc.EventType.MediaPlayerStopped, SongFinished, 1)
     global foreverstart
     foreverstart = 1
         
@@ -146,8 +147,8 @@ def SongFinished(self, data):
     global currentsongname
     currentsongname = "Playing None"
     nameupdate()
-    meme.event_detach(vlc.EventType.MediaPlayerEndReached)
-    meme.event_detach(vlc.EventType.MediaPlayerStopped)
+    player_events.event_detach(vlc.EventType.MediaPlayerEndReached)
+    player_events.event_detach(vlc.EventType.MediaPlayerStopped)
 
 
 def vote(votedsong):
