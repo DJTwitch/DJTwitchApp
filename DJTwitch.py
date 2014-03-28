@@ -9,7 +9,7 @@ import vlc
 import ConfigParser
 import threading
 import time
-from PyQt4 import QtGui, QtCore
+from PyQt4 import QtGui, QtCore, Qt
 
 
 global whovoted
@@ -18,6 +18,8 @@ global currentsongname
 currentsongname="None Playing. Please vote with !DJ"
 global top10song
 top10song = []
+global top10songlist
+top10songlist = "Top 10 Queued songs\n1.\n2.\n3.\n4.\n5.\n6.\n7.\n8.\n9.\n10.\n"
 global playing
 playing = 0
 global player
@@ -30,12 +32,16 @@ class Example(QtGui.QMainWindow):
         self.initUI()
         
     def initUI(self):      
-        
+
+        global songlistlabel
+        songlistlabel = QtGui.QLabel(top10songlist, self)
+        songlistlabel.setGeometry(30, 80, 500, 300)
+                
         sld = QtGui.QSlider(QtCore.Qt.Horizontal, self)
         sld.setMaximum(100)
         sld.setValue(100)
         sld.setFocusPolicy(QtCore.Qt.NoFocus)
-        sld.setGeometry(190, 110, 300, 30)
+        sld.setGeometry(190, 115, 280, 20)
         sld.valueChanged[int].connect(volume)
 
         lcd = QtGui.QLCDNumber(self)
@@ -43,10 +49,16 @@ class Example(QtGui.QMainWindow):
         sld.valueChanged.connect(lcd.display)
 
         volumePic = QtGui.QLabel(self)
-        volumePic.setGeometry(125, 100, 50, 50)
+        volumePic.setGeometry(140, 105, 35, 35)
         volumePixmap = QtGui.QPixmap("volume.png")
-        volumePixmap = volumePixmap.scaled(volumePic.size())
-        volumePic.setPixmap(QtGui.QPixmap("volume.png"))
+        volumePixmap = volumePixmap.scaled(volumePic.size(), QtCore.Qt.KeepAspectRatio)
+        volumePic.setPixmap(volumePixmap)
+
+        logoPic = QtGui.QLabel(self)
+        logoPic.setGeometry(0,280,500,250)
+        logoPixmap = QtGui.QPixmap("logo.png")
+        logoPixmap = logoPixmap.scaled(logoPic.size(), QtCore.Qt.KeepAspectRatio)
+        logoPic.setPixmap(logoPixmap)
 
         global lcdsn
         lcdsn = QtGui.QLabel(currentsongname, self)
@@ -70,7 +82,7 @@ class Example(QtGui.QMainWindow):
         skipb.move(10, 110)
         skipb.clicked.connect(skipbt)
         
-        self.setGeometry(300, 500, 500, 150)
+        self.setGeometry(300, 300, 500, 500)
         self.setWindowTitle('DJ Twitch')
         self.show()
 
@@ -90,7 +102,12 @@ class Example(QtGui.QMainWindow):
         except:
             pass
         os._exit(0)
-            
+
+def listupdate():
+    global top10songlist
+    global songlistlabel
+    songlistlabel.repaint()
+    songlistlabel.setText(QtCore.QString(top10songlist))
     
 def nameupdate():
     global lcdsn
@@ -183,13 +200,17 @@ def vote(votedsong):
 
 def sortvoting():
     global top10song
+    global top10songlist
+    top10songlist = "Top 10 Queued songs\n"
     for i in range(0,9):
         if (top10song[9-i][2] > top10song[9-i-1][2]):
             holder = top10song[9-i]
             top10song[9-i] = top10song[9-i-1]
             top10song[9-i-1] = holder
     for i in range(0,10):
-        print str(i+1) + ". " + "(" + str(top10song[i][2]) + ") " + top10song[i][0] 
+        top10songlist = top10songlist + str(i+1) + ". " + "(" + str(top10song[i][2]) + ") " + top10song[i][0] + "\n"
+        print str(i+1) + ". " + "(" + str(top10song[i][2]) + ") " + top10song[i][0]
+    listupdate()
 
 def djtwitchPlay():
     while True:
