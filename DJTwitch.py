@@ -83,7 +83,7 @@ class Example(QtGui.QMainWindow):
         skipb.clicked.connect(skipbt)
         
         self.setGeometry(300, 300, 500, 500)
-        self.setWindowTitle('DJ Twitch')
+        self.setWindowTitle('DJ Twitch - %s' % CHAT_CHANNEL)
         self.show()
 
     def keyPressEvent(self, e):
