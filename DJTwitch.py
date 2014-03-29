@@ -55,7 +55,7 @@ class Example(QtGui.QMainWindow):
         volumePic.setPixmap(volumePixmap)
 
         logoPic = QtGui.QLabel(self)
-        logoPic.setGeometry(0,280,500,250)
+        logoPic.setGeometry(0,330,500,250)
         logoPixmap = QtGui.QPixmap("logo.png")
         logoPixmap = logoPixmap.scaled(logoPic.size(), QtCore.Qt.KeepAspectRatio)
         logoPic.setPixmap(logoPixmap)
@@ -81,8 +81,21 @@ class Example(QtGui.QMainWindow):
         skipb.setCheckable(True)
         skipb.move(10, 110)
         skipb.clicked.connect(skipbt)
+
+        global songpsli
+        songpsli = QtGui.QSlider(QtCore.Qt.Horizontal, self)
+        songpsli.setValue(0)
+        songpsli.setFocusPolicy(QtCore.Qt.NoFocus)
+        songpsli.setGeometry(40, 320, 300, 30)
+        songpsli.sliderMoved[int].connect(songpos)
+
+        global poslcd
+        poslcd = QtGui.QLCDNumber(self)
+        poslcd.setGeometry(360, 300, 100, 50)
+
+        QtGui.QLabel("Position Slider", self).setGeometry(160, 300, 70, 10)
         
-        self.setGeometry(300, 300, 500, 500)
+        self.setGeometry(300, 300, 500, 550)
         self.setWindowTitle('DJ Twitch - %s' % CHAT_CHANNEL)
         self.show()
 
@@ -136,6 +149,21 @@ def skipbt(skipbt_var):
     global player
     skipb.toggle()
     player.stop()
+
+def songpos(slidepos_var):
+    global songpsli
+    global poslcd
+    global player
+    player.set_time(slidepos_var*1000)
+  
+def updis():
+    global player
+    global poslcd
+    global songpsli
+    songpsli.setMaximum(player.get_length()/1000)
+    if not songpsli.isSliderDown():
+        poslcd.display(player.get_time()/1000)
+        songpsli.setValue(player.get_time()/1000)
 
 def gui():    
     app = QtGui.QApplication(sys.argv)
@@ -231,6 +259,8 @@ def djtwitchPlay():
                 del whovoted[:]
                 top10song[0] = ["","",0]
                 sortvoting()
+        if playing == 1:
+            updis()
                 
 for i in range(0,10):
     top10song.append(["","",0])
@@ -329,6 +359,4 @@ while 1:
                         else:
                             print "song not found :("
 
-
-    
                 
