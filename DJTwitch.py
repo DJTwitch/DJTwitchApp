@@ -86,14 +86,14 @@ class Example(QtGui.QMainWindow):
         songpsli = QtGui.QSlider(QtCore.Qt.Horizontal, self)
         songpsli.setValue(0)
         songpsli.setFocusPolicy(QtCore.Qt.NoFocus)
-        songpsli.setGeometry(40, 320, 300, 30)
+        songpsli.setGeometry(40, 320, 200, 30)
         songpsli.sliderMoved[int].connect(songpos)
 
         global poslcd
-        poslcd = QtGui.QLCDNumber(self)
-        poslcd.setGeometry(360, 300, 100, 50)
+        poslcd = QtGui.QLCDNumber(int(11), self)
+        poslcd.setGeometry(260, 300, 200, 50)
 
-        QtGui.QLabel("Position Slider", self).setGeometry(160, 300, 70, 10)
+        QtGui.QLabel("Position Slider", self).setGeometry(110, 300, 70, 10)
         
         self.setGeometry(300, 300, 500, 550)
         self.setWindowTitle('DJ Twitch - %s' % CHAT_CHANNEL)
@@ -162,8 +162,17 @@ def updis():
     global songpsli
     songpsli.setMaximum(player.get_length()/1000)
     if not songpsli.isSliderDown():
-        poslcd.display(player.get_time()/1000)
+        poslcd.display(stms(player.get_time()/1000) + "-" + stms(player.get_length()/1000))
         songpsli.setValue(player.get_time()/1000)
+
+def stms(sec):
+    minval = int(sec/60)
+    secval = sec - int(sec/60)*60
+    if secval < 10:
+        asecvaltr = "0" + str(secval)
+        return str(minval) + ":" + asecvaltr
+    else:
+        return str(minval) + ":" + str(secval)
 
 def gui():    
     app = QtGui.QApplication(sys.argv)
