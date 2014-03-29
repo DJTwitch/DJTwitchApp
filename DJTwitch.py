@@ -86,12 +86,12 @@ class Example(QtGui.QMainWindow):
         songpsli = QtGui.QSlider(QtCore.Qt.Horizontal, self)
         songpsli.setValue(0)
         songpsli.setFocusPolicy(QtCore.Qt.NoFocus)
-        songpsli.setGeometry(40, 320, 200, 30)
+        songpsli.setGeometry(40, 330, 200, 15)
         songpsli.sliderMoved[int].connect(songpos)
 
         global poslcd
         poslcd = QtGui.QLCDNumber(int(11), self)
-        poslcd.setGeometry(260, 300, 200, 50)
+        poslcd.setGeometry(280, 315, 180, 30)
 
         QtGui.QLabel("Position Slider", self).setGeometry(110, 300, 70, 10)
         
@@ -162,7 +162,7 @@ def updis():
     global songpsli
     songpsli.setMaximum(player.get_length()/1000)
     if not songpsli.isSliderDown():
-        poslcd.display(stms(player.get_time()/1000) + "-" + stms(player.get_length()/1000))
+        poslcd.display(stms(player.get_time()/1000) + "=" + stms(player.get_length()/1000))
         songpsli.setValue(player.get_time()/1000)
 
 def stms(sec):
