@@ -242,7 +242,7 @@ def sortvoting():
 
 def djtwitchPlay():
     while True:
-        time.sleep(2)
+        time.sleep(1)
         global top10song
         if top10song[0][2] >=1:
             if playing ==0:
