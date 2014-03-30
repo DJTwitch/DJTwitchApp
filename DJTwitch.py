@@ -164,7 +164,7 @@ class Example(QtGui.QMainWindow):
         songpsli.setStyleSheet(posstyle)
         songpsli.setValue(0)
         songpsli.setFocusPolicy(QtCore.Qt.NoFocus)
-        songpsli.setGeometry(30, 330, 300, 15)
+        songpsli.setGeometry(30, 330, 330, 15)
         songpsli.sliderMoved[int].connect(songpos)
 
         global poslcd
@@ -174,7 +174,7 @@ class Example(QtGui.QMainWindow):
 	poslcd = QtGui.QLabel(QtCore.QString("0:00 / 0:00"), self)
 	poslcd.setFont(posfont)
         #poslcd = QtGui.QLCDNumber(int(11), self)
-        poslcd.setGeometry(380, 320, 180, 30)
+        poslcd.setGeometry(380, 321, 180, 30)
 
         QtGui.QLabel("Position Slider", self).setGeometry(110, 300, 70, 10)
         
