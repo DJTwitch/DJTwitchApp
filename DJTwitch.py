@@ -82,13 +82,13 @@ class Example(QtGui.QMainWindow):
 
         volumePic = QtGui.QLabel(self)
         volumePic.setGeometry(140, 105, 35, 35)
-        volumePixmap = QtGui.QPixmap("volume.png")
+        volumePixmap = QtGui.QPixmap("images/volume.png")
         volumePixmap = volumePixmap.scaled(volumePic.size(), QtCore.Qt.KeepAspectRatio)
         volumePic.setPixmap(volumePixmap)
 
         logoPic = QtGui.QLabel(self)
         logoPic.setGeometry(0,330,500,250)
-        logoPixmap = QtGui.QPixmap("logo.png")
+        logoPixmap = QtGui.QPixmap("images/logo.png")
         logoPixmap = logoPixmap.scaled(logoPic.size(), QtCore.Qt.KeepAspectRatio)
         logoPic.setPixmap(logoPixmap)
 
@@ -180,7 +180,7 @@ class Example(QtGui.QMainWindow):
         
         self.setGeometry(300, 300, 500, 550)
         self.setFixedSize(500,550)
-        self.setWindowIcon(QtGui.QIcon('icon.png'))
+        self.setWindowIcon(QtGui.QIcon('images/icon.png'))
         self.setWindowTitle('DJ Twitch - %s' % CHAT_CHANNEL)
         self.show()
 
