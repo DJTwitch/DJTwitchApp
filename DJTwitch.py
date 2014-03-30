@@ -176,7 +176,7 @@ class Example(QtGui.QMainWindow):
         #poslcd = QtGui.QLCDNumber(int(11), self)
         poslcd.setGeometry(380, 321, 180, 30)
 
-        QtGui.QLabel("Position Slider", self).setGeometry(110, 300, 70, 10)
+        #QtGui.QLabel("Position Slider", self).setGeometry(110, 300, 70, 10)
         
         self.setGeometry(300, 300, 500, 550)
         self.setFixedSize(500,550)
