@@ -40,21 +40,25 @@ class Example(QtGui.QMainWindow):
         volstyle = ("QSlider::groove:horizontal {"
                  "border: 1px solid #999999;"
                  "height: 8px; /* the groove expands to the size of the slider by default. by giving it a height, it has a fixed size */"
-                 "margin: 2px 0;"
+                    "border-radius: 4px;"
                  "}"
                  "QSlider::handle:horizontal {"
                  "background: qlineargradient(x1:0, y1:0, x2:1, y2:1, stop:0 #E6E6E6, stop:1 #CFCFCF);"
                  "border: 1px solid #5c5c5c;"
-                 "width: 18px;"
-                 "margin: -2px 0;"
+                 "width: 15px;"
+                 "margin: -3px 0;"
                  "border-radius: 3px;"
                  "}"
                  "QSlider::add-page:horizontal {"
                  "border: 1px solid #999999;"
+                    "height: 8px;"
+                    "border-radius: 4px;"
                  "background: qlineargradient(x1:0, y1:0, x2:0, y2:1, stop:0 #454545, stop:1 #6A6A6A);"
                  "}"
                  "QSlider::sub-page:horizontal {"
                  "border: 1px solid #999999;"
+                    "height: 8px;"
+                    "border-radius: 4px;"
                  "background: qlineargradient(x1:0, y1:0, x2:0, y2:1, stop:0 #B1B1B1, stop:1 #FFFFFF);"
                  "}")
                 
@@ -65,11 +69,16 @@ class Example(QtGui.QMainWindow):
         sld.setFocusPolicy(QtCore.Qt.NoFocus)
         sld.setGeometry(190, 115, 280, 20)
         sld.valueChanged[int].connect(volume)
-
+        
         lcd = QtGui.QLCDNumber(self)
         lcd.setGeometry(140, 50, 100, 50)
         lcd.display("100")
         sld.valueChanged.connect(lcd.display)
+
+        lcdpalette = lcd.palette()
+        lcdpalette.setColor(lcdpalette.WindowText, QtGui.QColor(0,0,0))
+        lcd.setPalette(lcdpalette)
+        lcd.setSegmentStyle(QtGui.QLCDNumber.Flat)
 
         volumePic = QtGui.QLabel(self)
         volumePic.setGeometry(140, 105, 35, 35)
@@ -86,21 +95,41 @@ class Example(QtGui.QMainWindow):
         global lcdsn
         lcdsn = QtGui.QLabel(currentsongname, self)
         lcdsn.setGeometry(140, 0, 300, 50)
+
+        buttonstyle = ("QPushButton {"
+                       "border: 2px solid #8f8f91;"
+                       "border-radius: 6px;"
+                       "background-color: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1, stop: 0 #f6f7fa, stop: 1 #dadbde);"
+                       "min-width: 80px;"
+                       "}"
+                       "QPushButton:pressed {"
+                       "border: 1px solid #999999;"
+                       "background-color: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1, stop: 0 #dadbde, stop: 1 #f6f7fa);"
+                       "}"
+                       "QPushButton:flat {"
+                       "border: none;"
+                       "}"
+                       "QPushButton:default {"
+                       "border-color: navy; "
+                       "}")
         
         global playb
         playb = QtGui.QPushButton('Play', self)
+        playb.setStyleSheet(buttonstyle)
         playb.setCheckable(True)
         playb.move(10, 10)
         playb.clicked.connect(playbt)
         
         global pauseb
         pauseb = QtGui.QPushButton('Pause', self)
+        pauseb.setStyleSheet(buttonstyle)
         pauseb.setCheckable(True)
         pauseb.move(10, 60)
         pauseb.clicked.connect(pausebt)
 
         global skipb
         skipb = QtGui.QPushButton('Skip', self)
+        skipb.setStyleSheet(buttonstyle)
         skipb.setCheckable(True)
         skipb.move(10, 110)
         skipb.clicked.connect(skipbt)
@@ -108,23 +137,28 @@ class Example(QtGui.QMainWindow):
         global songpsli
         posstyle = ("QSlider::groove:horizontal {"
                  "border: 1px solid #999999;"
+                    "border-radius: 4px;"
                  "height: 8px; /* the groove expands to the size of the slider by default. by giving it a height, it has a fixed size */"
-                 "margin: 2px 0;"
                  "}"
                  "QSlider::handle:horizontal {"
                  "background: qlineargradient(x1:0, y1:0, x2:1, y2:1, stop:0 #E6E6E6, stop:1 #CFCFCF);"
                  "border: 1px solid #5c5c5c;"
-                 "width: 18px;"
-                 "margin: -2px 0;"
+                 "width: 15px;"
+                 "margin-top: -3px;"
+                    "margin-bottom: -3px;"
                  "border-radius: 3px;"
                  "}"
                  "QSlider::add-page:horizontal {"
                  "border: 1px solid #999999;"
+                    "height: 8px;"
                  "background: qlineargradient(x1:0, y1:0, x2:0, y2:1, stop:0 #454545, stop:1 #6A6A6A);"
+                    "border-radius: 4px;"
                  "}"
                  "QSlider::sub-page:horizontal {"
                  "border: 1px solid #999999;"
+                    "height: 8px;"
                  "background: qlineargradient(x1:0, y1:0, x2:0, y2:1, stop:0 #4775FF, stop:1 #91ACFF);"
+                    "border-radius: 4px;"
                  "}")
         songpsli = QtGui.QSlider(QtCore.Qt.Horizontal, self)
         songpsli.setStyleSheet(posstyle)
