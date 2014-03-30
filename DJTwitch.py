@@ -179,6 +179,7 @@ class Example(QtGui.QMainWindow):
         QtGui.QLabel("Position Slider", self).setGeometry(110, 300, 70, 10)
         
         self.setGeometry(300, 300, 500, 550)
+        self.setFixedSize(500,550)
         self.setWindowTitle('DJ Twitch - %s' % CHAT_CHANNEL)
         self.show()
 
