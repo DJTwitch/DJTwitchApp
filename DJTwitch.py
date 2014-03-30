@@ -82,6 +82,13 @@ class Example(QtGui.QMainWindow):
         lcd.setPalette(lcdpalette)
         lcd.setSegmentStyle(QtGui.QLCDNumber.Flat)
 
+        global albumPic, albumPixmap
+        albumPic = QtGui.QLabel(self)
+        albumPic.setGeometry(300, 150, 160, 160)
+        albumPixmap = QtGui.QPixmap("images/cache.png")
+        albumPixmap = albumPixmap.scaled(albumPic.size(), QtCore.Qt.KeepAspectRatio)
+        albumPic.setPixmap(albumPixmap)
+
         volumePic = QtGui.QLabel(self)
         volumePic.setGeometry(140, 105, 35, 35)
         volumePixmap = QtGui.QPixmap("images/volume.png")
@@ -194,6 +201,11 @@ class Example(QtGui.QMainWindow):
             except:
                 pass
             self.close()
+        if e.key() == QtCore.Qt.Key_Return:
+            try:
+                albumupdate()
+            except:
+                pass
             
     def closeEvent(self, event): # when GUI is closed, program is closed
         global player
@@ -242,6 +254,13 @@ def songpos(slidepos_var):
     global poslcd
     global player
     player.set_time(slidepos_var*1000)
+
+def albumupdate():
+    global albumPic, crrentsongart
+    print crrentsongart
+    tempPixmap = QtGui.QPixmap(crrentsongart)
+    tempPixmap = tempPixmap.scaled(albumPic.size(), QtCore.Qt.KeepAspectRatio)
+    albumPic.setPixmap(tempPixmap)
   
 def updis():
     global player
@@ -275,7 +294,6 @@ def find(songname):
     for song in client.search(songname, Client.SONGS):
         songs.append(song)
     if songs:
-        art(songs[0])#i don't know where to put this otherwise
         return songs[0]
 
 def play(SongUrl):
@@ -296,7 +314,7 @@ def play(SongUrl):
     foreverstart = 1
         
 
-@vlc.callbackmethod    
+@vlc.callbackmethod
 def SongFinished(self, data):
     print "SONG IS OVER"
     global playing
@@ -314,29 +332,29 @@ def SongFinished(self, data):
 def art(song_obj):
     alb = song_obj.album
     pic = alb.cover
-    response = urllib2.urlopen(alb.export()['cover'])
-    global crrentsongart
-    crrentsongart = response.read()
-    target = open("songalbumcover." + str(pic.type), 'wb')#ccreate file to see if downloaded correctly
-    target.seek(0)
-    target.write(crrentsongart)
-    target.close()
+    fname = "images/albums/"+ alb.name + "." + str(pic.type)
+    if not os.path.isfile(fname):
+        response = urllib2.urlopen(alb.export()['cover'])
+        global crrentsongart
+        crrentsongart = "images/albumcache." + str(pic.type)
+        target = open(crrentsongart, 'wb') #create file to see if downloaded correctly
+        target.seek(0)
+        target.write(response.read())
+        target.close()
 
 def vote(votedsong):
     voted = 0
     global top10song
     for songelement in top10song:
-        if votedsong.name == songelement[0]:
-            songelement[1] = votedsong.stream.url
-            songelement[2] = songelement[2] + 1
-            voted = 1
-        if voted:
-            break
+        if not songelement[0].name == None:
+            if votedsong.name == songelement[0].name.encode('ascii', 'ignore'):
+                songelement[1] = songelement[1] + 1
+                voted = 1
+            if voted:
+                break
     if voted == 0:
-        top10song[9][0] = votedsong.name.encode('ascii','ignore')
-        top10song[9][1] = votedsong.stream.url
-        top10song[9][2] = 1
-        top10song[9][3] = str(votedsong.artist)
+        top10song[9][0] = votedsong
+        top10song[9][1] = 1
     sortvoting()
 
 def sortvoting():
@@ -344,12 +362,15 @@ def sortvoting():
     global top10songlist
     top10songlist = "Top 10 Queued songs\n"
     for i in range(9):
-        if (top10song[9-i][2] > top10song[9-i-1][2]):
+        if (top10song[9-i][1] > top10song[9-i-1][1]):
             holder = top10song[9-i]
             top10song[9-i] = top10song[9-i-1]
             top10song[9-i-1] = holder
     for i in range(10):
-        top10songlist = top10songlist + str(i+1) + ". " + "(" + str(top10song[i][2]) + ") " + top10song[i][0] + " - " + top10song[i][3] + "\n"
+        if top10song[i][0].name == None:
+            top10songlist = top10songlist + str(i+1) + ". " + "(" + str(top10song[i][1]) + ") " + " - " + "\n"
+        else:
+            top10songlist = top10songlist + str(i+1) + ". " + "(" + str(top10song[i][1]) + ") " + top10song[i][0].name.encode('ascii', 'ignore') + " - " + str(top10song[i][0].artist) + "\n"
         #print str(i+1) + ". " + "(" + str(top10song[i][2]) + ") " + top10song[i][0]
     listupdate()
 
@@ -357,26 +378,29 @@ def djtwitchPlay():
     while True:
         time.sleep(1)
         global top10song
-        if top10song[0][2] >=1:
+        if top10song[0][1] >=1:
             if playing ==0:
                 print "Loading next song in queue..."
-                global s
-                s.send(bytes("PRIVMSG #%s : Now Playing... %s (%d)\r\n" % (CHAT_CHANNEL, str(top10song[0][0]), top10song[0][2])))
-                threadurl = top10song[0][1]
                 global currentsongname
-                currentsongname = top10song[0][0] + " - " + top10song[0][3]
+                currentsongname = top10song[0][0].name.encode('ascii', 'ignore') + " - " + str(top10song[0][0].artist)
+                art(top10song[0][0])
+                global s
+                s.send(bytes("PRIVMSG #%s : Now Playing... %s (%d)\r\n" % (CHAT_CHANNEL, currentsongname, top10song[0][1])))
+                threadurl = top10song[0][0].stream.url
                 if thread2.is_alive():
                     nameupdate()
                 play(threadurl)
                 global whovoted
                 del whovoted[:]
-                top10song[0] = ["","",0,""]
+                top10song[0] = [Song(None,None,None,None,None,None,None,None,None,None,None),0]
                 sortvoting()
         if playing == 1:
             updis()
-                
+
+# main function starts here
+            
 for i in range(10):
-    top10song.append(["","",0, ""])
+    top10song.append([Song(None,None,None,None,None,None,None,None,None,None,None),0])
 
 if os.path.isfile("settings.txt"):
     config = ConfigParser.ConfigParser()
