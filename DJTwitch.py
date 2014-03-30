@@ -10,6 +10,7 @@ import ConfigParser
 import threading
 import time
 from PyQt4 import QtGui, QtCore, Qt
+import urllib2
 
 
 global whovoted
@@ -313,9 +314,10 @@ def SongFinished(self, data):
 def art(song_obj):
     alb = song_obj.album
     pic = alb.cover
+    response = urllib2.urlopen(alb.export()['cover'])
     global crrentsongart
-    crrentsongart = pic.data
-    target = open("songalbumcover." + str(pic.type), 'w')#ccreate file to see if downloaded correctly
+    crrentsongart = response.read()
+    target = open("songalbumcover." + str(pic.type), 'wb')#ccreate file to see if downloaded correctly
     target.seek(0)
     target.write(crrentsongart)
     target.close()
