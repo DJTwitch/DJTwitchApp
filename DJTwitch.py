@@ -36,8 +36,30 @@ class Example(QtGui.QMainWindow):
         global songlistlabel
         songlistlabel = QtGui.QLabel(top10songlist, self)
         songlistlabel.setGeometry(30, 80, 500, 300)
+
+        volstyle = ("QSlider::groove:horizontal {"
+                 "border: 1px solid #999999;"
+                 "height: 8px; /* the groove expands to the size of the slider by default. by giving it a height, it has a fixed size */"
+                 "margin: 2px 0;"
+                 "}"
+                 "QSlider::handle:horizontal {"
+                 "background: qlineargradient(x1:0, y1:0, x2:1, y2:1, stop:0 #E6E6E6, stop:1 #CFCFCF);"
+                 "border: 1px solid #5c5c5c;"
+                 "width: 18px;"
+                 "margin: -2px 0;"
+                 "border-radius: 3px;"
+                 "}"
+                 "QSlider::add-page:horizontal {"
+                 "border: 1px solid #999999;"
+                 "background: qlineargradient(x1:0, y1:0, x2:0, y2:1, stop:0 #454545, stop:1 #6A6A6A);"
+                 "}"
+                 "QSlider::sub-page:horizontal {"
+                 "border: 1px solid #999999;"
+                 "background: qlineargradient(x1:0, y1:0, x2:0, y2:1, stop:0 #B1B1B1, stop:1 #FFFFFF);"
+                 "}")
                 
         sld = QtGui.QSlider(QtCore.Qt.Horizontal, self)
+        sld.setStyleSheet(volstyle)
         sld.setMaximum(100)
         sld.setValue(100)
         sld.setFocusPolicy(QtCore.Qt.NoFocus)
@@ -46,6 +68,7 @@ class Example(QtGui.QMainWindow):
 
         lcd = QtGui.QLCDNumber(self)
         lcd.setGeometry(140, 50, 100, 50)
+        lcd.display("100")
         sld.valueChanged.connect(lcd.display)
 
         volumePic = QtGui.QLabel(self)
@@ -83,15 +106,41 @@ class Example(QtGui.QMainWindow):
         skipb.clicked.connect(skipbt)
 
         global songpsli
+        posstyle = ("QSlider::groove:horizontal {"
+                 "border: 1px solid #999999;"
+                 "height: 8px; /* the groove expands to the size of the slider by default. by giving it a height, it has a fixed size */"
+                 "margin: 2px 0;"
+                 "}"
+                 "QSlider::handle:horizontal {"
+                 "background: qlineargradient(x1:0, y1:0, x2:1, y2:1, stop:0 #E6E6E6, stop:1 #CFCFCF);"
+                 "border: 1px solid #5c5c5c;"
+                 "width: 18px;"
+                 "margin: -2px 0;"
+                 "border-radius: 3px;"
+                 "}"
+                 "QSlider::add-page:horizontal {"
+                 "border: 1px solid #999999;"
+                 "background: qlineargradient(x1:0, y1:0, x2:0, y2:1, stop:0 #454545, stop:1 #6A6A6A);"
+                 "}"
+                 "QSlider::sub-page:horizontal {"
+                 "border: 1px solid #999999;"
+                 "background: qlineargradient(x1:0, y1:0, x2:0, y2:1, stop:0 #4775FF, stop:1 #91ACFF);"
+                 "}")
         songpsli = QtGui.QSlider(QtCore.Qt.Horizontal, self)
+        songpsli.setStyleSheet(posstyle)
         songpsli.setValue(0)
         songpsli.setFocusPolicy(QtCore.Qt.NoFocus)
-        songpsli.setGeometry(40, 330, 200, 15)
+        songpsli.setGeometry(30, 330, 300, 15)
         songpsli.sliderMoved[int].connect(songpos)
 
         global poslcd
-        poslcd = QtGui.QLCDNumber(int(11), self)
-        poslcd.setGeometry(280, 315, 180, 30)
+        posfont = QtGui.QFont()
+        posfont.setPointSize(10)
+        posfont.setBold(True)
+	poslcd = QtGui.QLabel(QtCore.QString("0:00 / 0:00"), self)
+	poslcd.setFont(posfont)
+        #poslcd = QtGui.QLCDNumber(int(11), self)
+        poslcd.setGeometry(380, 320, 180, 30)
 
         QtGui.QLabel("Position Slider", self).setGeometry(110, 300, 70, 10)
         
@@ -119,13 +168,13 @@ class Example(QtGui.QMainWindow):
 def listupdate():
     global top10songlist
     global songlistlabel
-    songlistlabel.repaint()
+    #songlistlabel.repaint()
     songlistlabel.setText(QtCore.QString(top10songlist))
     
 def nameupdate():
     global lcdsn
     global currentsongname
-    lcdsn.repaint()
+    #lcdsn.repaint()
     lcdsn.setText(QtCore.QString(currentsongname))
     
 def volume(slide_var):
@@ -162,7 +211,8 @@ def updis():
     global songpsli
     songpsli.setMaximum(player.get_length()/1000)
     if not songpsli.isSliderDown():
-        poslcd.display(stms(player.get_time()/1000) + "=" + stms(player.get_length()/1000))
+	poslcd.setText(QtCore.QString(stms(player.get_time()/1000) + " / " + stms(player.get_length()/1000)))
+        #poslcd.display(stms(player.get_time()/1000) + "/" + stms(player.get_length()/1000))
         songpsli.setValue(player.get_time()/1000)
 
 def stms(sec):
@@ -215,6 +265,10 @@ def SongFinished(self, data):
     global currentsongname
     currentsongname = "Playing None"
     nameupdate()
+    global poslcd
+    poslcd.setText(QtCore.QString("0:00 / 0:00"))
+    global songpsli
+    songpsli.setValue(0)
     player_events.event_detach(vlc.EventType.MediaPlayerEndReached)
     player_events.event_detach(vlc.EventType.MediaPlayerStopped)
 
@@ -233,20 +287,21 @@ def vote(votedsong):
         top10song[9][0] = votedsong.name.encode('ascii','ignore')
         top10song[9][1] = votedsong.stream.url
         top10song[9][2] = 1
+        top10song[9][3] = str(votedsong.artist)
     sortvoting()
 
 def sortvoting():
     global top10song
     global top10songlist
     top10songlist = "Top 10 Queued songs\n"
-    for i in range(0,9):
+    for i in range(9):
         if (top10song[9-i][2] > top10song[9-i-1][2]):
             holder = top10song[9-i]
             top10song[9-i] = top10song[9-i-1]
             top10song[9-i-1] = holder
-    for i in range(0,10):
-        top10songlist = top10songlist + str(i+1) + ". " + "(" + str(top10song[i][2]) + ") " + top10song[i][0] + "\n"
-        print str(i+1) + ". " + "(" + str(top10song[i][2]) + ") " + top10song[i][0]
+    for i in range(10):
+        top10songlist = top10songlist + str(i+1) + ". " + "(" + str(top10song[i][2]) + ") " + top10song[i][0] + " - " + top10song[i][3] + "\n"
+        #print str(i+1) + ". " + "(" + str(top10song[i][2]) + ") " + top10song[i][0]
     listupdate()
 
 def djtwitchPlay():
@@ -260,19 +315,19 @@ def djtwitchPlay():
                 s.send(bytes("PRIVMSG #%s : Now Playing... %s (%d)\r\n" % (CHAT_CHANNEL, str(top10song[0][0]), top10song[0][2])))
                 threadurl = top10song[0][1]
                 global currentsongname
-                currentsongname = top10song[0][0]
+                currentsongname = top10song[0][0] + " - " + top10song[0][3]
                 if thread2.is_alive():
                     nameupdate()
                 play(threadurl)
                 global whovoted
                 del whovoted[:]
-                top10song[0] = ["","",0]
+                top10song[0] = ["","",0,""]
                 sortvoting()
         if playing == 1:
             updis()
                 
-for i in range(0,10):
-    top10song.append(["","",0])
+for i in range(10):
+    top10song.append(["","",0, ""])
 
 if os.path.isfile("settings.txt"):
     config = ConfigParser.ConfigParser()
@@ -362,9 +417,14 @@ while 1:
                         if votedsong:
                             print "song found"
                             whovoted.extend([user])
-                            vote(votedsong)
-                            output = votedsong.name.encode('ascii', 'ignore')
-                            print "Voted", output
+                            try:
+                                vote(votedsong)
+                                output = votedsong.name.encode('ascii', 'ignore') + " - " + str(votedsong.artist)
+                                print "\nVoted", output
+                            except Exception as e:
+                                print e
+                                print "***Error... Most likely server error***"
+                                whovoted.remove(user)
                         else:
                             print "song not found :("
 
