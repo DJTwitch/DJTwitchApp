@@ -30,7 +30,6 @@ class Example(QtGui.QMainWindow):
         
     def __init__(self):
         super(Example, self).__init__()
-        
         self.initUI()
         
     def initUI(self):      
@@ -175,6 +174,7 @@ class Example(QtGui.QMainWindow):
         songpsli.setFocusPolicy(QtCore.Qt.NoFocus)
         songpsli.setGeometry(30, 330, 330, 15)
         songpsli.sliderMoved[int].connect(songpos)
+        songpsli.valueChanged.connect(artupdate)
 
         global poslcd
         posfont = QtGui.QFont()
@@ -201,11 +201,6 @@ class Example(QtGui.QMainWindow):
             except:
                 pass
             self.close()
-        if e.key() == QtCore.Qt.Key_Return:
-            try:
-                albumupdate()
-            except:
-                pass
             
     def closeEvent(self, event): # when GUI is closed, program is closed
         global player
@@ -246,6 +241,10 @@ def pausebt(pausebt_var):
 def skipbt(skipbt_var):
     global skipb
     global player
+    global needToUpdateArtBool
+    needToUpdateArtBool = 1
+    global crrentsongart
+    crrentsongart = "images/cache.png"
     skipb.toggle()
     player.stop()
 
@@ -255,12 +254,14 @@ def songpos(slidepos_var):
     global player
     player.set_time(slidepos_var*1000)
 
-def albumupdate():
-    global albumPic, crrentsongart
-    print crrentsongart
-    tempPixmap = QtGui.QPixmap(crrentsongart)
-    tempPixmap = tempPixmap.scaled(albumPic.size(), QtCore.Qt.KeepAspectRatio)
-    albumPic.setPixmap(tempPixmap)
+def artupdate():
+    global songpsli, playing, needToUpdateArtBool
+    if needToUpdateArtBool == 1:
+        global albumPic, crrentsongart
+        tempPixmap = QtGui.QPixmap(crrentsongart)
+        tempPixmap = tempPixmap.scaled(albumPic.size(), QtCore.Qt.KeepAspectRatio)
+        albumPic.setPixmap(tempPixmap)
+        needToUpdateArtBool = 0
   
 def updis():
     global player
@@ -332,16 +333,14 @@ def SongFinished(self, data):
 def art(song_obj):
     alb = song_obj.album
     pic = alb.cover
-    fname = "images/albums/"+ alb.name + "." + str(pic.type)
-    if not os.path.isfile(fname):
-        response = urllib2.urlopen(alb.export()['cover'])
-        global crrentsongart
-        crrentsongart = "images/albumcache." + str(pic.type)
-        target = open(crrentsongart, 'wb') #create file to see if downloaded correctly
-        target.seek(0)
-        target.write(response.read())
-        target.close()
-
+    response = urllib2.urlopen(alb.export()['cover'])
+    global crrentsongart
+    crrentsongart = "images/albumcache." + str(pic.type)
+    target = open(crrentsongart, 'wb') #create file to see if downloaded correctly
+    target.seek(0)
+    target.write(response.read())
+    target.close()
+        
 def vote(votedsong):
     voted = 0
     global top10song
@@ -383,7 +382,14 @@ def djtwitchPlay():
                 print "Loading next song in queue..."
                 global currentsongname
                 currentsongname = top10song[0][0].name.encode('ascii', 'ignore') + " - " + str(top10song[0][0].artist)
-                art(top10song[0][0])
+                try:
+                    art(top10song[0][0])
+                except:
+                    print "Song album art not found :("
+                    global crrentsongart
+                    crrentsongart = "images/cache.png"
+                global needToUpdateArtBool
+                needToUpdateArtBool = 1
                 global s
                 s.send(bytes("PRIVMSG #%s : Now Playing... %s (%d)\r\n" % (CHAT_CHANNEL, currentsongname, top10song[0][1])))
                 threadurl = top10song[0][0].stream.url
