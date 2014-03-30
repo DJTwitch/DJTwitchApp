@@ -246,7 +246,8 @@ def skipbt(skipbt_var):
     global crrentsongart
     crrentsongart = "images/cache.png"
     skipb.toggle()
-    player.stop()
+    #player.stop()
+    player.set_time(player.get_length())
 
 def songpos(slidepos_var):
     global songpsli
