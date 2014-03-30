@@ -23,6 +23,7 @@ top10songlist = "Top 10 Queued songs\n1.\n2.\n3.\n4.\n5.\n6.\n7.\n8.\n9.\n10.\n"
 global playing
 playing = 0
 global player
+global crrentsongart
 
 class Example(QtGui.QMainWindow):
         
@@ -171,8 +172,8 @@ class Example(QtGui.QMainWindow):
         posfont = QtGui.QFont()
         posfont.setPointSize(10)
         posfont.setBold(True)
-	poslcd = QtGui.QLabel(QtCore.QString("0:00 / 0:00"), self)
-	poslcd.setFont(posfont)
+        poslcd = QtGui.QLabel(QtCore.QString("0:00 / 0:00"), self)
+        poslcd.setFont(posfont)
         #poslcd = QtGui.QLCDNumber(int(11), self)
         poslcd.setGeometry(380, 321, 180, 30)
 
@@ -247,7 +248,7 @@ def updis():
     global songpsli
     songpsli.setMaximum(player.get_length()/1000)
     if not songpsli.isSliderDown():
-	poslcd.setText(QtCore.QString(stms(player.get_time()/1000) + " / " + stms(player.get_length()/1000)))
+        poslcd.setText(QtCore.QString(stms(player.get_time()/1000) + " / " + stms(player.get_length()/1000)))
         #poslcd.display(stms(player.get_time()/1000) + "/" + stms(player.get_length()/1000))
         songpsli.setValue(player.get_time()/1000)
 
@@ -273,6 +274,7 @@ def find(songname):
     for song in client.search(songname, Client.SONGS):
         songs.append(song)
     if songs:
+        art(songs[0])#i don't know where to put this otherwise
         return songs[0]
 
 def play(SongUrl):
@@ -308,6 +310,15 @@ def SongFinished(self, data):
     player_events.event_detach(vlc.EventType.MediaPlayerEndReached)
     player_events.event_detach(vlc.EventType.MediaPlayerStopped)
 
+def art(song_obj):
+    alb = song_obj.album
+    pic = alb.cover
+    global crrentsongart
+    crrentsongart = pic.data
+    target = open("songalbumcover." + str(pic.type), 'w')#ccreate file to see if downloaded correctly
+    target.seek(0)
+    target.write(crrentsongart)
+    target.close()
 
 def vote(votedsong):
     voted = 0
