@@ -180,6 +180,7 @@ class Example(QtGui.QMainWindow):
         
         self.setGeometry(300, 300, 500, 550)
         self.setFixedSize(500,550)
+        self.setWindowIcon(QtGui.QIcon('icon.png'))
         self.setWindowTitle('DJ Twitch - %s' % CHAT_CHANNEL)
         self.show()
 
