@@ -6,7 +6,7 @@ Files
 * DJTwitch.py - the main app python file
 * settings.txt - the config for the app
 
-![windows_preview](https://cloud.githubusercontent.com/assets/7035966/2556659/1acb878e-b6db-11e3-9471-e8e565bbddc5.png)
+![preview](https://cloud.githubusercontent.com/assets/4276174/2560345/7faf0208-b7c0-11e3-8bcd-fff2304468b8.png)
 
 
 Settings.txt
